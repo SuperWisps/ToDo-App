@@ -1,0 +1,21 @@
+#addTask{
+    margin: auto;
+    text-align: center;
+    padding: 5px;
+}
+
+.container{
+    display: flex;
+    flex-wrap: nowrap;
+    padding: 10px;
+}
+
+#column1, #column2, #column3{
+    width: 32%;
+    text-align: center;
+    padding: 10px;
+}
+
+ul{
+    list-style-type: none;
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>My ToDo List</title>
+        <link href="assets/css/style.css" rel="stylesheet">
+        <script type="module" src="assets/scripts/addTasks.js" defer></script>
+    </head>
+
+    <body>
+        <header>
+
+        </header>
+
+        <div id="addTask">
+            <label for="newTask">Ajouter une tache</label> 
+            <input type="text" id="newTask" name="newTask">
+
+            <select name="columnSelect" id="columnSelector">
+                <option value="sendToList1">A Faire Aujourd'hui</option>
+                <option value="sendToList2">A Faire Cette Semaine</option>
+                <option value="sendToList3">A Faire Plus Tard</option>
+            </select>
+
+            <button id="confirmButton">Ajouter</button>
+        </div>
+        
+        <div class="container">
+
+            <section id="column1">
+                <ul id="list1">
+                    <h1>A Faire Aujourd'hui</h1>
+                </ul>
+            </section>
+
+            <section id="column2">
+                <ul id="list2">
+                    <h1>A Faire Cette Semaine</h1>
+                </ul>
+            </section>
+
+            <section id="column3">
+                <ul id="list3">
+                    <h1>A Faire Plus Tard</h1>
+                </ul>
+            </section>
+        </div>
+    </body>
+</html>
