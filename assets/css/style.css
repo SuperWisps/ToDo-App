@@ -4,7 +4,7 @@
     padding: 5px;
 }
 
-.container{
+#container{
     display: flex;
     flex-wrap: nowrap;
     padding: 10px;
@@ -19,3 +19,46 @@
 ul{
     list-style-type: none;
 }
+
+li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+li[data-priority="normal"] {
+    background: none;
+}
+
+li[data-priority="important"] {
+    background: #ffe082;
+}
+
+li[data-priority="urgent"] {
+    background: #ff5252;
+    color: white;
+}
+
+.dragging {
+    opacity: 0.5;
+    border: 2px dashed #333;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #444;
+}
+
+.delete-btn svg {
+    display: block;   /* évite le petit décalage dû à baseline du texte */
+}
+
+
+.delete-btn:hover {
+    color: #e53935;
+}
+
