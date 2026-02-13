@@ -26,20 +26,6 @@ li {
     justify-content: space-between;
 }
 
-
-li[data-priority="normal"] {
-    background: none;
-}
-
-li[data-priority="important"] {
-    background: #ffe082;
-}
-
-li[data-priority="urgent"] {
-    background: #ff5252;
-    color: white;
-}
-
 .dragging {
     opacity: 0.5;
     border: 2px dashed #333;

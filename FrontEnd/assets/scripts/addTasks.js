@@ -23,7 +23,6 @@ window.addEventListener("DOMContentLoaded", () => {
             const dragged = document.querySelector(".dragging");
             if (!dragged) return;
 
-            // Trouve la liste <ul> à l'intérieur de la colonne
             const targetList = column.querySelector("ul");
 
             if (targetList) {
@@ -43,12 +42,13 @@ window.addEventListener("DOMContentLoaded", () => {
             tasks.push({
                 text: li.querySelector("span").textContent,
                 completed: li.querySelector("input[type='checkbox']").checked,
-                priority: li.dataset.priority,
-                column: li.closest("ul").id
+                column: li.closest("ul").id,
+                date: li.dataset.date
             });
         });
 
         localStorage.setItem("tasks", JSON.stringify(tasks));
+        console.log(tasks);
     }
 
     // ---------- LOAD ----------
@@ -56,17 +56,16 @@ window.addEventListener("DOMContentLoaded", () => {
         const saved = JSON.parse(localStorage.getItem("tasks")) || [];
 
         saved.forEach(task => {
-            const li = createTask(task.text);
+            const li = createTask(task.text, task.date);
             li.querySelector("input").checked = task.completed;
-            li.dataset.priority = task.priority;
             lists[task.column].appendChild(li);
         });
     }
 
     // ---------- CREATE LI ----------
-    function createTask(text) {
+    function createTask(text, date) {
         const li = document.createElement("li");
-        li.dataset.priority = "normal";
+        li.dataset.date = date;
 
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
@@ -103,10 +102,12 @@ window.addEventListener("DOMContentLoaded", () => {
     // ---------- ADD TASK ----------
     function handleAddTask() {
         const taskText = inputTask.value.trim();
+        const taskDate = document.getElementById("taskDate").value;
         if (!taskText) return;
 
-        const li = createTask(taskText);
+        const li = createTask(taskText, taskDate);
         lists[selectColumn.value].appendChild(li);
+
 
         saveTasks();
         inputTask.value = "";
@@ -117,20 +118,6 @@ window.addEventListener("DOMContentLoaded", () => {
     // Entrée = ajoute la tâche
     inputTask.addEventListener("keydown", (e) => {
         if (e.key === "Enter") handleAddTask();
-    });
-
-    // ---------- PRIORITY CYCLE ----------
-    function cyclePriority(li) {
-        const order = ["normal", "important", "urgent"];
-        const next = order[(order.indexOf(li.dataset.priority) + 1) % order.length];
-        li.dataset.priority = next;
-    }
-
-    document.getElementById("container").addEventListener("click", (event) => {
-        if (event.target.tagName === "LI") {
-            cyclePriority(event.target);
-            saveTasks();
-        }
     });
 
     //CREATION DU BOUTON SUPPRIMER
