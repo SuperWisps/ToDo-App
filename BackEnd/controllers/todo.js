@@ -5,12 +5,21 @@ const Column = require('../models/Column');
 
 exports.createTodo = async (req, res, next) => {
   try {
-    const { title, columnId } = req.body;  // Récupérer columnId
+    console.log('\n==================================================');
+    console.log(`📍 ${new Date().toLocaleTimeString('fr-FR')} - POST /api/todos`);
+    console.log('📦 Body reçu:', JSON.stringify(req.body, null, 2));
+    console.log('✅ User ID:', req.userId);
+
+    const { title, columnId } = req.body;
+
+    if (!columnId) {
+      return res.status(400).json({ error: 'columnId requis' });
+    }
 
     // VÉRIFIER QUE LA COLONNE EXISTE ET APPARTIENT À L'USER
     const column = await Column.findOne({ 
       _id: columnId, 
-      userId: req.auth.userId 
+      userId: req.userId  // ✅ CORRIGÉ
     });
 
     if (!column) {
@@ -20,56 +29,61 @@ exports.createTodo = async (req, res, next) => {
     // Créer la tâche
     const todo = new Todo({
       title,
-      columnId,  // Assigner la colonne
-      userId: req.auth.userId,
+      columnId,
+      userId: req.userId,  // ✅ CORRIGÉ
       completed: false
     });
 
     await todo.save();
+    
+    console.log('✅ Tâche créée:', todo._id);
     res.status(201).json({ message: 'Tâche créée !', todo });
 
   } catch (error) {
-    res.status(400).json({ error });
+    console.error('❌ Erreur createTodo:', error);
+    res.status(400).json({ error: error.message });
   }
 };
 
-exports.getAllTodos = async (req, res, next) => {
+exports.getAllTodos = async (req, res) => {
   try {
-    const todos = await Todo.find({ userId: req.auth.userId })
-      .sort({ createdAt: -1 });
+    console.log('\n==================================================');
+    console.log(`📍 ${new Date().toLocaleTimeString('fr-FR')} - GET /api/todos`);
+    console.log('✅ User ID:', req.userId);
 
-    // GROUPER PAR COLONNE
-    const todosByColumn = todos.reduce((acc, todo) => {
-      const colId = todo.columnId.toString();
-      if (!acc[colId]) {
-        acc[colId] = [];
-      }
-      acc[colId].push(todo);
-      return acc;
-    }, {});
+    const todos = await Todo.find({ userId: req.userId });
 
-    res.status(200).json(todosByColumn);
+    console.log('📋 Todos trouvées:', todos.length);
+    res.status(200).json(todos);
 
   } catch (error) {
-    res.status(400).json({ error });
+    console.error('❌ Erreur getAllTodos:', error);
+    res.status(500).json({ error: error.message });
   }
 };
 
-exports.updateTodo = (req, res, next) => {
-  Todo.findOne({ _id: req.params.id, userId: req.auth.userId })
-    .then(todo => {
-      if (!todo) {
-        return res.status(404).json({ error: 'Todo non trouvée !' });
-      }
+exports.updateTodo = async (req, res, next) => {
+  try {
+    const todo = await Todo.findOne({ 
+      _id: req.params.id, 
+      userId: req.userId  // ✅ CORRIGÉ
+    });
 
-      Todo.updateOne(
-        { _id: req.params.id },
-        { ...req.body, _id: req.params.id }
-      )
-        .then(() => res.status(200).json({ message: 'Todo modifiée !' }))
-        .catch(error => res.status(400).json({ error }));
-    })
-    .catch(error => res.status(500).json({ error }));
+    if (!todo) {
+      return res.status(404).json({ error: 'Todo non trouvée !' });
+    }
+
+    await Todo.updateOne(
+      { _id: req.params.id },
+      { ...req.body, _id: req.params.id }
+    );
+
+    res.status(200).json({ message: 'Todo modifiée !' });
+
+  } catch (error) {
+    console.error('❌ Erreur updateTodo:', error);
+    res.status(500).json({ error: error.message });
+  }
 };
 
 exports.moveTodo = async (req, res, next) => {
@@ -79,7 +93,7 @@ exports.moveTodo = async (req, res, next) => {
     // Vérifier que la tâche existe et appartient à l'user
     const todo = await Todo.findOne({ 
       _id: req.params.id, 
-      userId: req.auth.userId 
+      userId: req.userId  // ✅ CORRIGÉ
     });
 
     if (!todo) {
@@ -89,7 +103,7 @@ exports.moveTodo = async (req, res, next) => {
     // Vérifier que la colonne de destination existe
     const column = await Column.findOne({ 
       _id: columnId, 
-      userId: req.auth.userId 
+      userId: req.userId  // ✅ CORRIGÉ
     });
 
     if (!column) {
@@ -103,20 +117,28 @@ exports.moveTodo = async (req, res, next) => {
     res.status(200).json({ message: 'Tâche déplacée !', todo });
 
   } catch (error) {
-    res.status(500).json({ error });
+    console.error('❌ Erreur moveTodo:', error);
+    res.status(500).json({ error: error.message });
   }
 };
 
-exports.deleteTodo = (req, res, next) => {
-  Todo.findOne({ _id: req.params.id, userId: req.auth.userId })
-    .then(todo => {
-      if (!todo) {
-        return res.status(404).json({ error: 'Todo non trouvée !' });
-      }
+exports.deleteTodo = async (req, res, next) => {
+  try {
+    const todo = await Todo.findOne({ 
+      _id: req.params.id, 
+      userId: req.userId  // ✅ CORRIGÉ
+    });
 
-      Todo.deleteOne({ _id: req.params.id })
-        .then(() => res.status(200).json({ message: 'Todo supprimée !' }))
-        .catch(error => res.status(400).json({ error }));
-    })
-    .catch(error => res.status(500).json({ error }));
+    if (!todo) {
+      return res.status(404).json({ error: 'Todo non trouvée !' });
+    }
+
+    await Todo.deleteOne({ _id: req.params.id });
+    
+    res.status(200).json({ message: 'Todo supprimée !' });
+
+  } catch (error) {
+    console.error('❌ Erreur deleteTodo:', error);
+    res.status(500).json({ error: error.message });
+  }
 };

@@ -1,34 +1,33 @@
-// Vérifier l'authentification au chargement
-requireAuth();
-
 async function loadColumns() {
     try {
         const response = await fetchWithAuth(`${API_URL}/columns`);
 
-        // Vérifier le statut de la réponse
         if (!response.ok) {
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
 
-        // Le backend retourne directement un tableau
         const columns = await response.json();
-
-        console.log('Columns reçues:', columns); // DEBUG
+        console.log('✅ Colonnes reçues:', columns.length);
 
         // Vérifier que c'est bien un tableau
         if (!Array.isArray(columns)) {
             throw new Error('Format de réponse invalide');
         }
 
+        // ✅ 1. D'ABORD afficher les colonnes (crée les zones de tâches)
         displayColumns(columns);
         populateColumnSelect(columns);
 
+        // ✅ 2. PUIS charger les tâches (remplit les zones)
+        await loadTodos();
+
     } catch (error) {
-        console.error('Erreur détaillée:', error);
+        console.error('❌ Erreur loadColumns:', error);
         showError('Impossible de charger les colonnes: ' + error.message);
         displayColumns([]);
     }
 }
+
 
 function displayColumns(columns) {
     const columnList = document.getElementById('column-list');
@@ -114,34 +113,39 @@ async function updateColumn(id, title) {  // Renommer la fonction
     }
 }
 
-async function deleteColumn(id) {
-    if (!confirm('Voulez-vous vraiment supprimer cette colonne ?')) {
+async function deleteColumn(columnId) {
+    console.log('\n🗑️ Suppression colonne:', columnId);
+    
+    if (!confirm('Supprimer cette colonne et toutes ses tâches ?')) {
         return;
     }
 
     try {
-        const response = await fetchWithAuth(`${API_URL}/columns/${id}`, {
-            method: 'DELETE'
+        const response = await fetch(`${API_URL}/columns/${columnId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
         });
 
         if (response.ok) {
-            loadColumns();
-            showSuccess('Colonne supprimée !');
+            console.log('✅ Colonne supprimée');
+            
+            // ✅ RECHARGER LES DEUX !
+            await loadColumns();  // Recharge les colonnes
+            await loadTodos();    // Recharge les tâches
+            
         } else {
-            const data = await response.json();
-            showError(data.error || 'Erreur lors de la suppression');
+            const error = await response.json();
+            console.error('❌ Erreur suppression:', error);
+            alert('Erreur lors de la suppression');
         }
     } catch (error) {
-        console.error('Erreur:', error);
-        showError('Erreur de connexion au serveur');
+        console.error('❌ Erreur réseau:', error);
+        alert('Erreur réseau');
     }
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
 
 function editColumn(id) {
     const section = document.getElementById(`column${id}`);

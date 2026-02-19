@@ -1,33 +1,31 @@
 // Vérifier l'authentification au chargement
-requireAuth();
-
 async function loadTodos() {
     try {
         const response = await fetchWithAuth(`${API_URL}/todos`);
-
-        // Vérifier le statut de la réponse
+        
         if (!response.ok) {
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
 
-        // Le backend retourne directement un tableau
+        // ✅ L'API retourne directement un array de todos
         const todos = await response.json();
 
-        console.log('Todos reçues:', todos); // DEBUG
+        console.log('Todos reçues:', todos);
 
-        // Vérifier que c'est bien un tableau
+        // ✅ Vérifier que c'est bien un array
         if (!Array.isArray(todos)) {
+            console.error('Réponse reçue:', todos);
             throw new Error('Format de réponse invalide');
         }
 
-        displayTodos(todos); // Passer directement le tableau
+        displayTodos(todos);
 
     } catch (error) {
         console.error('Erreur détaillée:', error);
-        showError('Impossible de charger les tâches: ' + error.message);
-        displayTodos([]); // Afficher une liste vide
+        showError('Impossible de charger les tâches');
     }
 }
+
 
 function displayTodos(todos) {
     if (!todos || !Array.isArray(todos)) {
@@ -150,14 +148,12 @@ async function deleteTodo(id) {
     }
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
 // Charger les colonnes D'ABORD, puis les tâches
 document.addEventListener('DOMContentLoaded', async () => {
-    await loadColumns(); // Attendre que les colonnes soient chargées
-    loadTodos();         // Ensuite charger les tâches
-});
+    // ✅ Vérifier l'authentification UNE SEULE FOIS
+    requireAuth();
+
+    // ✅ Charger colonnes puis tâches
+    await loadColumns();
+    loadTodos();
+})

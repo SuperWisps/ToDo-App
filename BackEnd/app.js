@@ -19,8 +19,12 @@ app.use(express.json());
 
 // connexion bdd MongoDB
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Connexion à MongoDB reussi'))
-    .catch((error) => console.error('Connexion à MongoDB échouée: ', error));
+    .then(() => console.log('✅ Connexion à MongoDB réussie'))
+    .catch((error) => {
+        console.error('❌ Connexion MongoDB échouée:', error);
+        process.exit(1);  // Arrêter le serveur si pas de BDD
+    });
+
 
 app.use('/api/auth', userRoutes);
 app.use('/api/todos', todoRoutes);

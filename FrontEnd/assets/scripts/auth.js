@@ -76,7 +76,11 @@ async function login(event) {
     }
 }
 
+// ========== DÉCONNEXION ==========
 function logout() {
-    removeToken();
-    window.location.href = 'index.html';
+    if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+        localStorage.removeItem('token');
+        window.location.href = 'index.html';
+    }
 }
+
