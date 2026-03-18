@@ -110,3 +110,22 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+
+
+let visioButtun = document.querySelector(".mdpvisible");
+let inputMdp = document.getElementById("password");
+let inputConfirmMdp = document.getElementById("confirm-password");
+
+visioButtun.addEventListener("click", (event) => {
+
+    event.preventDefault();
+
+    if(inputMdp.type === "password"){
+        inputMdp.type = "text";
+        inputConfirmMdp.type = "text";
+    }else if(inputMdp.type === "text"){
+        inputMdp.type = "password";
+        inputConfirmMdp.type = "password";
+    }
+} )
